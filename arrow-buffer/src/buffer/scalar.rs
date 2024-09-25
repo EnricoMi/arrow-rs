@@ -19,6 +19,7 @@ use crate::alloc::Deallocation;
 use crate::buffer::Buffer;
 use crate::native::ArrowNativeType;
 use crate::{BufferBuilder, MutableBuffer, OffsetBuffer};
+use std::any::type_name;
 use std::fmt::Formatter;
 use std::marker::PhantomData;
 use std::ops::Deref;
@@ -128,18 +129,9 @@ impl<T: ArrowNativeType> From<Buffer> for ScalarBuffer<T> {
     fn from(buffer: Buffer) -> Self {
         let align = std::mem::align_of::<T>();
         let is_aligned = buffer.as_ptr().align_offset(align) == 0;
-
-        match buffer.deallocation() {
-            Deallocation::Standard(_) => assert!(
-                is_aligned,
-                "Memory pointer is not aligned with the specified scalar type"
-            ),
-            Deallocation::Custom(_, _) =>
-                assert!(is_aligned, "Memory pointer from external source (e.g, FFI) is not aligned with the specified scalar type. Before importing buffer through FFI, please make sure the allocation is aligned."),
-        }
-
+        let aligned_buffer = if is_aligned { buffer } else { Buffer::from_slice_ref(buffer.as_ref()) };
         Self {
-            buffer,
+            buffer: aligned_buffer,
             phantom: Default::default(),
         }
     }
