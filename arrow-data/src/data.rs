@@ -697,6 +697,7 @@ impl ArrayData {
     /// This also aligns buffers of children data
     pub fn align_buffers(&mut self) {
         let layout = layout(&self.data_type);
+        println!("aligning buffers");
         for (buffer, spec) in self.buffers.iter_mut().zip(&layout.buffers) {
             if let BufferSpec::FixedWidth { alignment, .. } = spec {
                 if buffer.as_ptr().align_offset(*alignment) != 0 {
