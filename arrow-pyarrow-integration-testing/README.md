@@ -47,7 +47,7 @@ we can use pyarrow's interface to move pointers from and to Rust.
 ```bash
 # prepare development environment (used to build wheel / install in development)
 python -m venv venv
-venv/bin/pip install maturin toml pytest pytz pyarrow>=5.0
+venv/bin/pip install maturin toml pytest pytz "pyarrow>=5.0"
 ```
 
 Whenever rust code changes (your changes or via git pull):
