@@ -326,7 +326,7 @@ impl<'a> ImportedArrowArray<'a> {
 
         // Should FFI be checking validity?
         Ok(unsafe {
-            let mut array = ArrayData::new_unchecked(
+            ArrayData::new_aligned_unchecked(
                 self.data_type,
                 len,
                 Some(null_count),
@@ -334,9 +334,7 @@ impl<'a> ImportedArrowArray<'a> {
                 offset,
                 buffers,
                 child_data,
-            );
-            array.align_buffers();
-            array
+            )
         })
     }
 

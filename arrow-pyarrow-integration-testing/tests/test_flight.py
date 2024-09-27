@@ -32,6 +32,9 @@ class FlightServer(FlightServerBase):
 
 def test_flight_data():
     with FlightServer() as server:
+        # FlightServer is known to produce mis-aligned memory due to gRPC:
+        # https://github.com/apache/arrow/issues/32276
+        # This tests that Rust Arrow handles mis-alignment
         client = FlightClient(f"grpc+tcp://localhost:{server.port}")
         batches = client.do_get(Ticket("data")).read_all().to_batches()
         assert len(batches) == 1
