@@ -273,6 +273,44 @@ impl ArrayData {
         .build_unchecked()
     }
 
+    /// Create a new aligned ArrayData instance;
+    ///
+    /// If `null_count` is not specified, the number of nulls in
+    /// null_bit_buffer is calculated.
+    ///
+    /// If the number of nulls is 0 then the null_bit_buffer
+    /// is set to `None`.
+    ///
+    /// # Safety
+    ///
+    /// The input values *must* form a valid Arrow array for
+    /// `data_type`, or undefined behavior can result.
+    ///
+    /// Note: This is a low level API and most users of the arrow
+    /// crate should create arrays using the methods in the `array`
+    /// module.
+    pub unsafe fn new_aligned_unchecked(
+        data_type: DataType,
+        len: usize,
+        null_count: Option<usize>,
+        null_bit_buffer: Option<Buffer>,
+        offset: usize,
+        buffers: Vec<Buffer>,
+        child_data: Vec<ArrayData>,
+    ) -> Self {
+        ArrayDataBuilder {
+            data_type,
+            len,
+            null_count,
+            null_bit_buffer,
+            nulls: None,
+            offset,
+            buffers,
+            child_data,
+        }
+        .build_aligned_unchecked()
+    }
+
     /// Create a new ArrayData, validating that the provided buffers form a valid
     /// Arrow array of the specified data type.
     ///
@@ -1889,6 +1927,22 @@ impl ArrayDataBuilder {
     #[allow(clippy::let_and_return)]
     pub unsafe fn build_unchecked(self) -> ArrayData {
         let data = self.build_impl();
+        // Provide a force_validate mode
+        #[cfg(feature = "force_validate")]
+        data.validate_data().unwrap();
+        data
+    }
+
+    /// Creates an array data, aligns buffers, without any validation
+    ///
+    /// # Safety
+    ///
+    /// The same caveats as [`ArrayData::build_aligned`]
+    /// and [`ArrayData::new_unchecked`] apply.
+    #[allow(clippy::let_and_return)]
+    pub unsafe fn build_aligned_unchecked(self) -> ArrayData {
+        let mut data = self.build_impl();
+        data.align_buffers();
         // Provide a force_validate mode
         #[cfg(feature = "force_validate")]
         data.validate_data().unwrap();

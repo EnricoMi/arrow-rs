@@ -326,7 +326,7 @@ impl<'a> ImportedArrowArray<'a> {
 
         // Should FFI be checking validity?
         Ok(unsafe {
-            ArrayData::new_unchecked(
+            ArrayData::new_aligned_unchecked(
                 self.data_type,
                 len,
                 Some(null_count),

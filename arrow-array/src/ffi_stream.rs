@@ -62,7 +62,6 @@ use std::{
     os::raw::{c_char, c_int, c_void},
     sync::Arc,
 };
-
 use arrow_data::ffi::FFI_ArrowArray;
 use arrow_schema::{ffi::FFI_ArrowSchema, ArrowError, Schema, SchemaRef};
 
